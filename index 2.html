@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Wedding Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --rose:#b5647a;--rose-light:#f5e8ec;--rose-mid:#d4a0af;
+  --sage:#7a9e8a;--cream:#faf7f4;--warm-white:#fff9f6;
+  --text:#2c2420;--text-mid:#6b5c56;--text-light:#a08880;
+  --border:rgba(181,100,122,0.15);--border-strong:rgba(181,100,122,0.3);
+  --gold:#c8a97a;--danger:#c94040;--success:#4a9063;--warning:#c8893a;
+  --shadow:0 2px 20px rgba(44,36,32,0.08);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+.topbar{background:var(--warm-white);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 1px 10px rgba(44,36,32,0.06);}
+.brand{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:300;color:var(--rose);display:flex;align-items:center;gap:8px;}
+.brand span{color:var(--text-mid);font-size:0.8rem;font-family:'DM Sans',sans-serif;}
+.nav{display:flex;gap:3px;flex-wrap:wrap;}
+.nb{background:none;border:none;padding:6px 11px;border-radius:8px;cursor:pointer;font-size:0.76rem;font-family:'DM Sans',sans-serif;color:var(--text-mid);transition:all 0.15s;}
+.nb:hover{background:var(--rose-light);color:var(--rose);}
+.nb.active{background:var(--rose-light);color:var(--rose);font-weight:500;}
+.chip{background:var(--rose);color:white;padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:500;white-space:nowrap;}
+.loading-screen{position:fixed;inset:0;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;z-index:9999;}
+.loading-screen.hidden{display:none;}
+.spinner{width:32px;height:32px;border:3px solid var(--rose-light);border-top-color:var(--rose);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.page{display:none;padding:1.5rem;max-width:1080px;margin:0 auto;animation:fi 0.2s ease;}
+.page.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;margin-bottom:0.2rem;}
+.page-sub{color:var(--text-light);font-size:0.8rem;margin-bottom:1.5rem;}
+.card{background:var(--warm-white);border:1px solid var(--border);border-radius:14px;padding:1.25rem;box-shadow:var(--shadow);}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:400;margin-bottom:0.85rem;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:0.85rem;}
+.stat-card{background:var(--warm-white);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;}
+.sl{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);margin-bottom:0.3rem;}
+.sv{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--rose);}
+.mb4{margin-bottom:1rem;}.mb6{margin-bottom:1.5rem;}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+th{text-align:left;padding:9px 10px;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-light);border-bottom:1px solid var(--border);font-weight:500;}
+td{padding:10px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--rose-light);}
+.subheading-row td{background:var(--cream)!important;font-family:'Cormorant Garamond',serif;font-size:0.95rem;color:var(--text-mid);padding:10px 12px 6px!important;border-bottom:1px solid var(--border-strong)!important;font-style:italic;}
+.subheading-row:hover td{background:var(--cream)!important;}
+.divider-row td{background:#3a2e2a!important;color:#f5e8ec!important;font-size:0.76rem!important;font-weight:600!important;letter-spacing:0.1em!important;text-transform:uppercase!important;padding:9px 14px!important;border:none!important;}
+.divider-row:hover td{background:#2c2420!important;}
+.dmb{background:rgba(245,232,236,0.15)!important;border:1px solid rgba(245,232,236,0.25)!important;color:#f5e8ec!important;padding:2px 8px!important;border-radius:5px!important;cursor:pointer!important;font-size:0.7rem!important;}
+.ddb{background:transparent!important;border:1px solid rgba(201,64,64,0.5)!important;color:#f5a0a0!important;padding:2px 8px!important;border-radius:5px!important;cursor:pointer!important;font-size:0.7rem!important;}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:0.68rem;font-weight:500;}
+.bg{background:#e6f4eb;color:#2d7a4a;}.ba{background:#fdf3e7;color:#9a6520;}.br{background:#fdeaea;color:#b03030;}.bb{background:#e8f0fc;color:#3059a8;}.bgr{background:#f0ece9;color:#7a6b65;}.brose{background:var(--rose-light);color:var(--rose);}
+.ftab{font-family:'DM Sans',sans-serif;font-size:0.72rem;padding:4px 11px;border-radius:20px;border:1px solid var(--border-strong);background:transparent;color:var(--text-mid);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.ftab:hover{background:var(--rose-light);color:var(--rose);}
+.ftab.active{background:var(--rose);color:white;border-color:var(--rose);font-weight:500;}
+.ftab[data-invite].active{background:var(--gold);border-color:var(--gold);}
+.pw{background:var(--border);border-radius:100px;height:5px;overflow:hidden;margin:6px 0;}
+.pb{height:100%;background:linear-gradient(90deg,var(--rose-mid),var(--rose));border-radius:100px;transition:width 0.5s;}
+.ci{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.ci:last-child{border-bottom:none;}
+.ci input[type=checkbox]{width:17px;height:17px;min-width:17px;accent-color:var(--rose);margin-top:2px;}
+.ci.done .ct{text-decoration:line-through;color:var(--text-light);}
+.ct{font-size:0.85rem;}.cm{font-size:0.72rem;color:var(--text-light);margin-top:1px;}
+input,select,textarea{font-family:'DM Sans',sans-serif;font-size:0.84rem;padding:8px 11px;border:1px solid var(--border-strong);border-radius:9px;background:var(--cream);color:var(--text);width:100%;transition:border-color 0.15s;outline:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--rose);background:white;}
+label{font-size:0.74rem;color:var(--text-mid);margin-bottom:3px;display:block;font-weight:500;}
+.field{margin-bottom:0.85rem;}
+textarea{min-height:70px;resize:vertical;}
+.btn{font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;padding:8px 16px;border-radius:9px;cursor:pointer;border:none;transition:all 0.15s;}
+.btn-p{background:var(--rose);color:white;}.btn-p:hover{background:#a0546a;}
+.btn-s{background:var(--rose-light);color:var(--rose);}.btn-s:hover{background:var(--rose-mid);color:white;}
+.btn-g{background:transparent;color:var(--text-light);border:1px solid var(--border-strong);}.btn-g:hover{background:var(--rose-light);color:var(--rose);}
+.btn-d{background:#fdf0f0;color:var(--danger);border:1px solid rgba(201,64,64,0.2);}.btn-d:hover{background:var(--danger);color:white;}
+.bsm{padding:4px 10px;font-size:0.72rem;border-radius:7px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(44,36,32,0.45);z-index:1000;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--warm-white);border-radius:18px;padding:1.75rem;max-width:500px;width:100%;box-shadow:0 20px 50px rgba(44,36,32,0.2);max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;margin-bottom:1.1rem;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;}
+.divider{border:none;border-top:1px solid var(--border);margin:1.25rem 0;}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text-light);font-size:0.85rem;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#3a2e2a;color:#f5e8ec;padding:12px 24px;border-radius:12px;font-size:0.82rem;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);opacity:0;transition:opacity 0.3s;}
+.toast.show{opacity:1;}
+@media(max-width:700px){.g2,.g4{grid-template-columns:1fr;}.nav{display:none;}.mob-nav{display:flex!important;}}
+.mob-nav{display:none;overflow-x:auto;padding:8px 1rem;gap:4px;border-bottom:1px solid var(--border);background:var(--warm-white);}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--rose);">♡ Our Wedding Planner</div>
+  <div class="spinner"></div>
+  <div id="loading-msg" style="font-size:0.8rem;color:var(--text-light);">Connecting to your database…</div>
+</div>
+
+<div class="topbar">
+  <div class="brand">♡ Our Wedding Planner <span>· Feb 2026</span></div>
+  <div class="nav">
+    <button class="nb active" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nb" onclick="showPage('checklist')">Checklist</button>
+    <button class="nb" onclick="showPage('vendors')">Vendors</button>
+    <button class="nb" onclick="showPage('budget')">Budget</button>
+    <button class="nb" onclick="showPage('guests')">Guests</button>
+    <button class="nb" onclick="showPage('seating')">Seating</button>
+    <button class="nb" onclick="showPage('notes')">Notes</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span id="sync-dot" style="font-size:0.72rem;color:var(--text-light);">◌</span>
+    <label style="cursor:pointer;background:var(--rose-light);color:var(--rose);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:500;padding:4px 10px;border-radius:7px;display:inline-flex;align-items:center;gap:4px;">
+      ⬆ Import<input type="file" accept=".json" onchange="importData(this)" style="display:none;"/>
+    </label>
+    <button onclick="exportData()" style="background:transparent;color:var(--text-light);border:1px solid var(--border-strong);font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:500;padding:4px 10px;border-radius:7px;cursor:pointer;">⬇ Export</button>
+    <div class="chip" id="cd-chip">Loading…</div>
+  </div>
+</div>
+
+<div class="mob-nav" id="mob-nav">
+  <button class="nb active" onclick="showPage('dashboard')" style="white-space:nowrap">Dashboard</button>
+  <button class="nb" onclick="showPage('checklist')" style="white-space:nowrap">Checklist</button>
+  <button class="nb" onclick="showPage('vendors')" style="white-space:nowrap">Vendors</button>
+  <button class="nb" onclick="showPage('budget')" style="white-space:nowrap">Budget</button>
+  <button class="nb" onclick="showPage('guests')" style="white-space:nowrap">Guests</button>
+  <button class="nb" onclick="showPage('seating')" style="white-space:nowrap">Seating</button>
+  <button class="nb" onclick="showPage('notes')" style="white-space:nowrap">Notes</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:0.2rem;">
+    <h1 class="page-title">Our wedding ♡</h1>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--rose);font-style:italic;" id="dash-date"></div>
+  </div>
+  <p class="page-sub">All your data is safely saved to your personal database — access from any device, anytime.</p>
+  <div class="g4 mb6">
+    <div class="stat-card"><div class="sl">Days to go</div><div class="sv" id="s-days">—</div></div>
+    <div class="stat-card"><div class="sl">Tasks done</div><div class="sv" id="s-tasks">0/0</div><div class="pw" style="width:70px;margin:4px auto 0"><div class="pb" id="s-tpb" style="width:0%"></div></div></div>
+    <div class="stat-card"><div class="sl">Budget left</div><div class="sv" id="s-budget">₹—</div></div>
+    <div class="stat-card"><div class="sl">Guests RSVPed</div><div class="sv" id="s-guests">0</div><div style="font-size:0.72rem;color:var(--text-light)" id="s-gsub"></div></div>
+  </div>
+  <div class="g2" style="gap:1rem;">
+    <div class="card"><div class="card-title">📋 Upcoming tasks</div><div id="d-tasks"></div></div>
+    <div class="card"><div class="card-title">💰 Budget snapshot</div><div id="d-budget"></div></div>
+    <div class="card"><div class="card-title">📞 Vendor status</div><div id="d-vendors"></div></div>
+    <div class="card"><div class="card-title">👥 RSVP snapshot</div><div id="d-guests"></div></div>
+  </div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="page" id="page-checklist">
+  <h1 class="page-title">Checklist</h1>
+  <p class="page-sub">Every task saved permanently to your database.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1rem;">
+    <div id="cl-prog" style="font-size:0.8rem;color:var(--text-mid);"></div>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="cl-txt" placeholder="Add a task…" style="width:210px;" onkeydown="if(event.key==='Enter')addTask()"/>
+      <select id="cl-cat" style="width:120px;font-size:0.76rem;"><option>Venue</option><option>Catering</option><option>Attire</option><option>Beauty</option><option>Music</option><option>Photography</option><option>Legal</option><option>Flowers</option><option>Transport</option><option>Guests</option><option>Other</option></select>
+      <button class="btn btn-p bsm" onclick="addTask()">+ Add</button>
+    </div>
+  </div>
+  <div id="cl-sections"></div>
+</div>
+
+<!-- VENDORS -->
+<div class="page" id="page-vendors">
+  <div class="sh"><div><h1 class="page-title">Vendors</h1><p class="page-sub" style="margin:0">All suppliers saved permanently.</p></div><button class="btn btn-p" onclick="openM('vm')">+ Add vendor</button></div>
+  <div class="card">
+    <table><thead><tr><th>#</th><th>Name</th><th>Category</th><th>Contact</th><th>Cost</th><th>Deposit</th><th>Status</th><th></th></tr></thead><tbody id="v-tbody"></tbody></table>
+    <div class="empty" id="v-empty"><div style="font-size:2rem;opacity:0.4;margin-bottom:8px">🏪</div>No vendors yet.</div>
+  </div>
+</div>
+
+<!-- BUDGET -->
+<div class="page" id="page-budget">
+  <div class="sh"><div><h1 class="page-title">Budget</h1><p class="page-sub" style="margin:0">Track every rupee.</p></div><button class="btn btn-p" onclick="openM('em')">+ Add expense</button></div>
+  <div class="card mb4">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <div style="flex:1;min-width:180px;"><label>Total budget (₹)</label><input type="number" id="bud-input" placeholder="e.g. 4500000" oninput="saveBudget()"/></div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <div class="stat-card" style="min-width:110px;"><div class="sl">Budget</div><div class="sv" id="b-total">₹0</div></div>
+        <div class="stat-card" style="min-width:110px;"><div class="sl">Spent</div><div class="sv" id="b-spent">₹0</div></div>
+        <div class="stat-card" style="min-width:110px;"><div class="sl">Remaining</div><div class="sv" id="b-rem">₹0</div></div>
+      </div>
+    </div>
+    <div class="pw" style="margin-top:1rem;"><div class="pb" id="b-bar" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-light);margin-top:3px;"><span>₹0</span><span id="b-pct">0%</span><span id="b-tlabel">₹0</span></div>
+  </div>
+  <div class="card mb4">
+    <table><thead><tr><th>Category</th><th>Description</th><th>Amount</th><th>Paid?</th><th>Date</th><th></th></tr></thead><tbody id="e-tbody"></tbody></table>
+    <div class="empty" id="e-empty"><div style="font-size:2rem;opacity:0.4;margin-bottom:8px">💰</div>No expenses yet.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🧾 Tax / extra charges</div>
+    <div id="tax-rows"></div>
+    <button class="btn btn-s bsm" onclick="addTaxRow()" style="margin-top:10px;">+ Add tax / charge</button>
+    <div class="divider"></div>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+      <div class="stat-card" style="min-width:130px;"><div class="sl">Subtotal</div><div class="sv" id="tax-subtotal">₹0</div></div>
+      <div class="stat-card" style="min-width:130px;"><div class="sl">Total tax</div><div class="sv" id="tax-total" style="color:var(--warning)">₹0</div></div>
+      <div class="stat-card" style="min-width:130px;border:2px solid var(--rose-mid);"><div class="sl">Grand total</div><div class="sv" id="tax-grand">₹0</div></div>
+      <div class="stat-card" style="min-width:130px;"><div class="sl">Remaining</div><div class="sv" id="tax-remaining">₹0</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GUESTS -->
+<div class="page" id="page-guests">
+  <div class="sh"><div><h1 class="page-title">Guest List</h1><p class="page-sub" style="margin:0">Every guest saved permanently to your database.</p></div><button class="btn btn-p" onclick="openM('gm')">+ Add guest</button></div>
+  <div class="g4 mb4">
+    <div class="stat-card"><div class="sl">Total</div><div class="sv" id="g-tot">0</div></div>
+    <div class="stat-card"><div class="sl">Attending ✓</div><div class="sv" id="g-yes" style="color:var(--sage)">0</div></div>
+    <div class="stat-card"><div class="sl">Declined</div><div class="sv" id="g-no" style="color:var(--danger)">0</div></div>
+    <div class="stat-card"><div class="sl">Pending</div><div class="sv" id="g-pend" style="color:var(--gold)">0</div></div>
+  </div>
+  <div class="g2 mb4" style="gap:1rem;">
+    <div class="stat-card" style="display:flex;align-items:center;gap:1rem;text-align:left;padding:1rem 1.25rem;border-left:4px solid var(--rose);">
+      <div style="font-size:1.5rem;">💍</div>
+      <div><div class="sl" style="text-align:left;">Nuptials + Reception</div><div class="sv" id="g-nuptials">0</div><div style="font-size:0.7rem;color:var(--text-light)">Full day</div></div>
+    </div>
+    <div class="stat-card" style="display:flex;align-items:center;gap:1rem;text-align:left;padding:1rem 1.25rem;border-left:4px solid var(--gold);">
+      <div style="font-size:1.5rem;">🥂</div>
+      <div><div class="sl" style="text-align:left;">Reception Only</div><div class="sv" id="g-reception">0</div><div style="font-size:0.7rem;color:var(--text-light)">Evening only</div></div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:0.6rem;">
+    <span style="font-size:0.7rem;color:var(--text-light);font-weight:500;text-transform:uppercase;letter-spacing:0.05em;">Invite</span>
+    <button class="ftab active" data-invite="All" onclick="setGF('invite','All')">All</button>
+    <button class="ftab" data-invite="Nuptials + Reception" onclick="setGF('invite','Nuptials + Reception')">💍 Nuptials + Reception</button>
+    <button class="ftab" data-invite="Reception Only" onclick="setGF('invite','Reception Only')">🥂 Reception only</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:0.6rem;">
+    <span style="font-size:0.7rem;color:var(--text-light);font-weight:500;text-transform:uppercase;letter-spacing:0.05em;">Group</span>
+    <button class="ftab active" data-group="All" onclick="setGF('group','All')">All</button>
+    <button class="ftab" data-group="Friends" onclick="setGF('group','Friends')">Friends</button>
+    <button class="ftab" data-group="Dad's Immediate Family" onclick="setGF('group',`Dad's Immediate Family`)">Dad's immediate</button>
+    <button class="ftab" data-group="Mom's Immediate Family" onclick="setGF('group',`Mom's Immediate Family`)">Mom's immediate</button>
+    <button class="ftab" data-group="Dad's Extended Family" onclick="setGF('group',`Dad's Extended Family`)">Dad's extended</button>
+    <button class="ftab" data-group="Mom's Extended Family" onclick="setGF('group',`Mom's Extended Family`)">Mom's extended</button>
+    <button class="ftab" data-group="Parents' Friends" onclick="setGF('group',`Parents' Friends`)">Parents' friends</button>
+    <button class="ftab" data-group="Friends Parents" onclick="setGF('group','Friends Parents')">Friends parents</button>
+    <button class="ftab" data-group="George's Friends" onclick="setGF('group',`George's Friends`)">George's friends</button>
+    <button class="ftab" data-group="Misc" onclick="setGF('group','Misc')">Misc</button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:0.75rem;">
+    <div style="position:relative;flex:1;min-width:180px;max-width:280px;">
+      <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-light);pointer-events:none;">🔍</span>
+      <input type="text" id="g-search" placeholder="Search by name…" oninput="renderGuests()" style="padding-left:32px;"/>
+    </div>
+    <select id="gf-side" onchange="setGF('side',this.value)" style="width:120px;font-size:0.76rem;"><option value="All">All sides</option><option value="Bride">Bride's side</option><option value="Groom">Groom's side</option><option value="Both">Both</option></select>
+    <select id="gf-rsvp" onchange="setGF('rsvp',this.value)" style="width:120px;font-size:0.76rem;"><option value="All">All RSVPs</option><option value="Yes">Attending</option><option value="No">Declined</option><option value="Pending">Pending</option></select>
+    <span id="g-flabel" style="font-size:0.74rem;color:var(--text-light);"></span>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:0.76rem;color:var(--text-light);">In <b>Friends</b> view: type a banner name and press Enter to add a section divider.</div>
+      <div id="add-div-bar" style="display:none;align-items:center;gap:6px;">
+        <input type="text" id="div-input" placeholder="e.g. SCHOOL FRIENDS" style="width:190px;font-size:0.76rem;" onkeydown="if(event.key==='Enter')addDivider()"/>
+        <button class="btn btn-s bsm" onclick="addDivider()">+ Add banner</button>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th style="width:32px">#</th><th>Name</th><th>Group</th><th>Side</th><th>Invited to</th><th>Invite sent</th><th>RSVP</th><th>+1</th><th>Dietary</th><th>Notes</th><th></th></tr></thead>
+      <tbody id="g-tbody"></tbody>
+    </table>
+    <div class="empty" id="g-empty"><div style="font-size:2rem;opacity:0.4;margin-bottom:8px">👥</div>No guests match this filter.</div>
+  </div>
+</div>
+
+<!-- SEATING -->
+<div class="page" id="page-seating">
+  <div class="sh"><div><h1 class="page-title">Seating</h1><p class="page-sub" style="margin:0">Organise your tables.</p></div><button class="btn btn-p" onclick="openM('tm')">+ Add table</button></div>
+  <div class="g4 mb6">
+    <div class="stat-card"><div class="sl">Tables</div><div class="sv" id="st-tables">0</div></div>
+    <div class="stat-card"><div class="sl">Total seats</div><div class="sv" id="st-seats">0</div></div>
+    <div class="stat-card"><div class="sl">Assigned</div><div class="sv" id="st-assigned">0</div></div>
+    <div class="stat-card"><div class="sl">Unassigned</div><div class="sv" id="st-unassigned">0</div></div>
+  </div>
+  <div id="tables-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;"></div>
+  <div class="empty" id="st-empty"><div style="font-size:2rem;opacity:0.4;margin-bottom:8px">🪑</div>No tables yet.</div>
+</div>
+
+<!-- NOTES -->
+<div class="page" id="page-notes">
+  <h1 class="page-title">Notes & Ideas</h1>
+  <p class="page-sub">Saved permanently — access from any device.</p>
+  <div class="g2" style="gap:1rem;">
+    <div class="card"><div class="card-title">📝 General notes</div><textarea id="n-gen" placeholder="Thoughts, reminders…" style="min-height:260px;width:100%;" oninput="saveNotes()"></textarea></div>
+    <div>
+      <div class="card mb4"><div class="card-title">💍 Vows & readings</div><textarea id="n-vows" placeholder="Draft vows…" style="min-height:100px;width:100%;" oninput="saveNotes()"></textarea></div>
+      <div class="card mb4"><div class="card-title">🎵 Music ideas</div><textarea id="n-music" placeholder="First dance, aisle song…" style="min-height:90px;width:100%;" oninput="saveNotes()"></textarea></div>
+      <div class="card"><div class="card-title">🌸 Style & vision</div><textarea id="n-style" placeholder="Colours, flowers, themes…" style="min-height:90px;width:100%;" oninput="saveNotes()"></textarea></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="vm"><div class="modal">
+  <div class="modal-title" id="vm-t">Add Vendor</div><input type="hidden" id="v-eid">
+  <div class="g2" style="gap:10px;">
+    <div class="field"><label>Name</label><input type="text" id="v-name"/></div>
+    <div class="field"><label>Category</label><select id="v-cat"><option>Venue</option><option>Catering</option><option>Photography</option><option>Videography</option><option>Flowers</option><option>Music / DJ</option><option>Cake</option><option>Hair & Make-up</option><option>Transport</option><option>Officiant</option><option>Stationery</option><option>Other</option></select></div>
+    <div class="field"><label>Contact</label><input type="text" id="v-contact"/></div>
+    <div class="field"><label>Phone / email</label><input type="text" id="v-phone"/></div>
+    <div class="field"><label>Total cost (₹)</label><input type="number" id="v-cost" placeholder="0"/></div>
+    <div class="field"><label>Deposit paid (₹)</label><input type="number" id="v-dep" placeholder="0"/></div>
+    <div class="field"><label>Contract signed?</label><select id="v-contract"><option value="No">No</option><option value="Yes">Yes</option></select></div>
+    <div class="field"><label>Status</label><select id="v-status"><option>Enquiring</option><option>Booked</option><option>Confirmed</option><option>Paid</option><option>Cancelled</option></select></div>
+  </div>
+  <div class="field"><label>Notes</label><textarea id="v-notes"></textarea></div>
+  <div class="modal-actions"><button class="btn btn-g" onclick="closeM('vm')">Cancel</button><button class="btn btn-p" onclick="saveVendor()">Save</button></div>
+</div></div>
+
+<div class="modal-overlay" id="em"><div class="modal">
+  <div class="modal-title">Add Expense</div><input type="hidden" id="e-eid">
+  <div class="g2" style="gap:10px;">
+    <div class="field"><label>Category</label><select id="e-cat"><option>Venue</option><option>Catering</option><option>Photography</option><option>Flowers</option><option>Music</option><option>Cake</option><option>Dress / Suit</option><option>Hair & Make-up</option><option>Transport</option><option>Rings</option><option>Stationery</option><option>Honeymoon</option><option>Other</option></select></div>
+    <div class="field"><label>Description</label><input type="text" id="e-desc" placeholder="What is this for?"/></div>
+    <div class="field"><label>Amount (₹)</label><input type="number" id="e-amount" placeholder="0"/></div>
+    <div class="field"><label>Date</label><input type="date" id="e-date"/></div>
+    <div class="field"><label>Paid?</label><select id="e-paid"><option value="No">No — outstanding</option><option value="Yes">Yes — paid</option></select></div>
+  </div>
+  <div class="modal-actions"><button class="btn btn-g" onclick="closeM('em')">Cancel</button><button class="btn btn-p" onclick="saveExpense()">Save</button></div>
+</div></div>
+
+<div class="modal-overlay" id="gm"><div class="modal">
+  <div class="modal-title" id="gm-t">Add Guest</div><input type="hidden" id="g-eid">
+  <div class="g2" style="gap:10px;">
+    <div class="field"><label>Full name</label><input type="text" id="g-name" placeholder="e.g. Sarah Jones"/></div>
+    <div class="field"><label>Invited to</label><select id="g-itype"><option value="Reception Only">🥂 Reception only</option><option value="Nuptials + Reception">💍 Nuptials + Reception</option></select></div>
+    <div class="field"><label>Group</label><select id="g-group" onchange="toggleSub()">
+      <option>Friends</option><option>Dad's Immediate Family</option><option>Mom's Immediate Family</option>
+      <option>Dad's Extended Family</option><option>Mom's Extended Family</option>
+      <option>Parents' Friends</option><option>Friends Parents</option><option>George's Friends</option><option>Misc</option>
+    </select></div>
+    <div class="field" id="sub-field"><label>Sub-group <span style="font-size:0.68rem;color:var(--text-light)">(Friends only)</span></label><input type="text" id="g-sub" placeholder="e.g. School friends"/></div>
+    <div class="field"><label>Side</label><select id="g-side"><option value="Bride">Bride's side</option><option value="Groom">Groom's side</option><option value="Both">Both</option></select></div>
+    <div class="field"><label>Invite sent?</label><select id="g-invite"><option value="No">Not yet</option><option value="Yes">Yes</option></select></div>
+    <div class="field"><label>RSVP</label><select id="g-rsvp"><option value="Pending">Pending</option><option value="Yes">Attending ✓</option><option value="No">Declined</option></select></div>
+    <div class="field"><label>+1?</label><select id="g-plus"><option value="No">No</option><option value="Yes">Yes</option><option value="Maybe">Maybe</option></select></div>
+    <div class="field"><label>Dietary</label><input type="text" id="g-diet" placeholder="e.g. Vegetarian"/></div>
+    <div class="field"><label>Table</label><select id="g-table"><option value="">Unassigned</option></select></div>
+  </div>
+  <div class="field"><label>Notes</label><textarea id="g-notes" style="min-height:55px;"></textarea></div>
+  <div class="modal-actions"><button class="btn btn-g" onclick="closeM('gm')">Cancel</button><button class="btn btn-p" onclick="saveGuest()">Save</button></div>
+</div></div>
+
+<div class="modal-overlay" id="tm"><div class="modal">
+  <div class="modal-title">Add Table</div><input type="hidden" id="t-eid">
+  <div class="g2" style="gap:10px;">
+    <div class="field"><label>Table name</label><input type="text" id="t-name" placeholder="e.g. Top Table"/></div>
+    <div class="field"><label>Seats</label><input type="number" id="t-seats" placeholder="10"/></div>
+  </div>
+  <div class="modal-actions"><button class="btn btn-g" onclick="closeM('tm')">Cancel</button><button class="btn btn-p" onclick="saveTable()">Save</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== GOOGLE SHEETS BACKEND ====================
+const GS_URL = 'https://script.google.com/macros/s/AKfycbyAazkR9Gl94JC8ZdRu2S1tOT1X5Wbsvwr2oqrv1_v5o1JKob9ZwbZyqBr4bwSds_cDHQ/exec';
+
+async function dbRead() {
+  try {
+    const r = await fetch(GS_URL + '?action=load', {method:'GET', redirect:'follow'});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const json = await r.json();
+    if (!json.success) throw new Error(json.error || 'Unknown error');
+    // Convert {key: value} object to array of {key, value} rows
+    return Object.entries(json.data).map(([key, value]) => ({key, value: typeof value === "string" ? value : JSON.stringify(value)}));
+  } catch(e) {
+    console.error('dbRead error:', e);
+    return null;
+  }
+}
+
+async function dbWrite(key, val, retries=3) {
+  for(let attempt=1; attempt<=retries; attempt++){
+    try {
+      const r = await fetch(GS_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: {'Content-Type': 'text/plain'},
+        body: JSON.stringify({action:'save', key, value: val})
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const json = await r.json();
+      if (!json.success) throw new Error(json.error || 'Unknown error');
+      return true;
+    } catch(e) {
+      console.warn(`dbWrite attempt ${attempt} failed:`, e.message);
+      if(attempt===retries){
+        toast('⚠ Save error — please refresh and try again', 5000);
+        setSyncDot('error');
+        return false;
+      }
+      await new Promise(r=>setTimeout(r, 1000*attempt)); // wait before retry
+    }
+  }
+}
+
+async function dbDelete(key, retries=3) {
+  for(let attempt=1; attempt<=retries; attempt++){
+    try {
+      const r = await fetch(GS_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: {'Content-Type': 'text/plain'},
+        body: JSON.stringify({action:'delete', key})
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const json = await r.json();
+      if (!json.success) throw new Error(json.error || 'Unknown error');
+      return true;
+    } catch(e) {
+      console.warn(`dbDelete attempt ${attempt} failed:`, e.message);
+      if(attempt===retries){ return false; }
+      await new Promise(r=>setTimeout(r, 1000*attempt));
+    }
+  }
+}
+
+async function dbWriteAll() {
+  try {
+    const keys = Object.keys(state);
+    for (const key of keys) {
+      await dbWrite(key, state[key]);
+    }
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+async function dbLoad() {
+  const rows = await dbRead();
+  if (rows === null) { toast('⚠ Could not connect. Check your internet connection.', 5000); return; }
+  if (rows.length === 0) {
+    state.checklist = defaultChecklist;
+    await dbWriteAll();
+    return;
+  }
+
+  // First pass — load all regular keys
+  const guestMap = {};
+  rows.forEach(row => {
+    const val = row.value;
+    if (row.key.startsWith('guest_')) {
+      try {
+        const g = typeof val === 'string' ? JSON.parse(val) : val;
+        if (g && g.id) guestMap[g.id] = g;
+      } catch{}
+    } else {
+      try {
+        state[row.key] = typeof val === 'string' ? JSON.parse(val) : val;
+      } catch{ state[row.key] = val; }
+    }
+  });
+
+  // Always merge: start with guests array from sheet, then overlay individual guest_ rows
+  const existingGuests = Array.isArray(state.guests) ? state.guests : [];
+  const existingMap = {};
+  existingGuests.forEach(g => { if(g && g.id) existingMap[g.id] = g; });
+  // individual guest_ rows override (they have latest edits)
+  Object.assign(existingMap, guestMap);
+  // Reconstruct ordered array using friendsOrder + any unordered guests
+  const fo = Array.isArray(state.friendsOrder) ? state.friendsOrder : [];
+  const orderedIds = fo.filter(o => o.type === 'guest').map(o => o.id);
+  const allIds = Object.keys(existingMap);
+  const unordered = allIds.filter(id => !orderedIds.includes(id));
+  state.guests = [...orderedIds, ...unordered]
+    .filter(id => existingMap[id])
+    .map(id => existingMap[id]);
+}
+
+async function dbInit() {
+  return true; // Google Sheets always available
+}
+
+const WEDDING = new Date('2026-02-14T14:00:00');
+let _saveTimer = null;
+
+// ==================== STATE ====================
+const defaultChecklist = [
+  {cat:'Venue',text:'Book ceremony venue',done:false},
+  {cat:'Venue',text:'Book reception venue',done:false},
+  {cat:'Catering',text:'Book caterer / confirm menu',done:false},
+  {cat:'Catering',text:'Arrange tasting session',done:false},
+  {cat:'Catering',text:'Sort wedding cake',done:false},
+  {cat:'Photography',text:'Book photographer',done:false},
+  {cat:'Photography',text:'Book videographer',done:false},
+  {cat:'Music',text:'Book band / DJ',done:false},
+  {cat:'Attire',text:'Buy / rent wedding dress',done:false},
+  {cat:'Attire',text:'Dress fittings',done:false},
+  {cat:'Attire',text:'Buy wedding rings',done:false},
+  {cat:'Beauty',text:'Book hair stylist',done:false},
+  {cat:'Beauty',text:'Book make-up artist',done:false},
+  {cat:'Flowers',text:'Book florist',done:false},
+  {cat:'Transport',text:'Book wedding car',done:false},
+  {cat:'Legal',text:'Book registrar / officiant',done:false},
+  {cat:'Legal',text:'Give notice of marriage',done:false},
+  {cat:'Guests',text:'Send save the dates',done:false},
+  {cat:'Guests',text:'Send invitations',done:false},
+  {cat:'Guests',text:'Chase RSVPs',done:false},
+  {cat:'Other',text:'Plan honeymoon',done:false},
+  {cat:'Other',text:'Write vows',done:false},
+  {cat:'Other',text:'Create day-of timeline',done:false},
+].map((c,i)=>({...c,id:'default_'+i}));
+
+let state = {
+  checklist:[], vendors:[], expenses:[], guests:[], tables:[],
+  budget:0, notes:{general:'',vows:'',music:'',style:''},
+  taxRows:[], friendsOrder:[]
+};
+
+// ==================== UTILS ====================
+function setSyncDot(s){const el=document.getElementById('sync-dot');if(!el)return;const map={saving:'↑ saving…',saved:'✓ saved',error:'⚠ error'};const col={saving:'#c8a97a',saved:'#4a9063',error:'#c94040'};el.textContent=map[s]||'';el.style.color=col[s]||'#a08880';}
+function persist(key){setSyncDot('saving');clearTimeout(_saveTimer);_saveTimer=setTimeout(async()=>{const ok=await dbWrite(key,state[key]);if(ok)setSyncDot('saved');},800);}
+function inr(n){n=Math.round(n||0);const s=n.toString();if(s.length<=3)return s;const l=s.slice(-3),r=s.slice(0,-3);return r.replace(/\B(?=(\d{2})+(?!\d))/g,',')+','+l;}
+function esc(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function toast(msg,dur=3500){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),dur);}
+function armDel(btn,fn){if(btn.dataset.armed==='1'){fn();return;}btn.dataset.armed='1';btn.textContent='Sure?';btn.style.cssText='background:var(--danger);color:white;border:none;padding:4px 10px;font-size:0.72rem;border-radius:7px;cursor:pointer;font-family:DM Sans,sans-serif;';setTimeout(()=>{if(btn.dataset.armed==='1'){btn.dataset.armed='0';btn.textContent='✕';btn.style.cssText='';btn.className='btn btn-d bsm';}},2500);}
+
+// ==================== NAV ====================
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelectorAll('.nb').forEach(b=>{if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))b.classList.add('active');});renderAll();}
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+// ==================== COUNTDOWN ====================
+function updateCountdown(){const days=Math.ceil((WEDDING-new Date())/86400000);const chip=document.getElementById('cd-chip');if(chip)chip.textContent=days>0?days+' days to go ♡':'🎉 Your wedding day!';const dd=document.getElementById('dash-date');if(dd)dd.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});const sd=document.getElementById('s-days');if(sd)sd.textContent=days>0?days:'♡';}
+
+// ==================== CHECKLIST ====================
+function addTask(){const t=document.getElementById('cl-txt').value.trim(),c=document.getElementById('cl-cat').value;if(!t)return;state.checklist.push({id:uid(),cat:c,text:t,done:false});persist('checklist');renderChecklist();renderDashboard();document.getElementById('cl-txt').value='';}
+function toggleTask(id){const t=state.checklist.find(x=>x.id===id);if(t){t.done=!t.done;persist('checklist');renderChecklist();renderDashboard();}}
+function delTask(id){state.checklist=state.checklist.filter(x=>x.id!==id);persist('checklist');renderChecklist();renderDashboard();}
+function renderChecklist(){const done=state.checklist.filter(c=>c.done).length,total=state.checklist.length,pct=total?Math.round(done/total*100):0;const pe=document.getElementById('cl-prog');if(pe)pe.textContent=done+' of '+total+' done ('+pct+'%)';const sec=document.getElementById('cl-sections');if(!sec)return;const cats=[...new Set(state.checklist.map(c=>c.cat))];sec.innerHTML='';cats.forEach(cat=>{const items=state.checklist.filter(c=>c.cat===cat),cd=items.filter(c=>c.done).length,div=document.createElement('div');div.className='card mb4';div.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem"><div class="card-title" style="margin:0">${cat}</div><span style="font-size:0.72rem;color:var(--text-light)">${cd}/${items.length}</span></div>`;items.forEach(item=>{const row=document.createElement('div');row.className='ci'+(item.done?' done':'');row.innerHTML=`<input type="checkbox" ${item.done?'checked':''} onchange="toggleTask('${item.id}')"/><div style="flex:1"><div class="ct">${esc(item.text)}</div></div><button class="btn btn-d bsm" onclick="armDel(this,()=>delTask('${item.id}'))">✕</button>`;div.appendChild(row);});sec.appendChild(div);});}
+
+// ==================== VENDORS ====================
+const vStat={Enquiring:'bb',Booked:'ba',Confirmed:'bg',Paid:'bg',Cancelled:'br'};
+function saveVendor(){const id=document.getElementById('v-eid').value,obj={id:id||uid(),name:document.getElementById('v-name').value,cat:document.getElementById('v-cat').value,contact:document.getElementById('v-contact').value,phone:document.getElementById('v-phone').value,cost:parseFloat(document.getElementById('v-cost').value)||0,deposit:parseFloat(document.getElementById('v-dep').value)||0,contract:document.getElementById('v-contract').value,status:document.getElementById('v-status').value,notes:document.getElementById('v-notes').value};if(!obj.name){alert('Enter a vendor name');return;}if(id){const i=state.vendors.findIndex(v=>v.id===id);if(i>-1)state.vendors[i]=obj;}else{state.vendors.push(obj);}persist('vendors');closeM('vm');clearVF();renderVendors();renderDashboard();toast('✓ Vendor saved');}
+function clearVF(){['v-name','v-contact','v-phone','v-notes'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});['v-cost','v-dep'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});const e=document.getElementById('v-eid');if(e)e.value='';const t=document.getElementById('vm-t');if(t)t.textContent='Add Vendor';}
+function editVendor(id){const v=state.vendors.find(x=>x.id===id);if(!v)return;document.getElementById('v-eid').value=v.id;document.getElementById('v-name').value=v.name;document.getElementById('v-cat').value=v.cat;document.getElementById('v-contact').value=v.contact;document.getElementById('v-phone').value=v.phone;document.getElementById('v-cost').value=v.cost;document.getElementById('v-dep').value=v.deposit;document.getElementById('v-contract').value=v.contract;document.getElementById('v-status').value=v.status;document.getElementById('v-notes').value=v.notes;document.getElementById('vm-t').textContent='Edit Vendor';openM('vm');}
+function delVendor(id){state.vendors=state.vendors.filter(v=>v.id!==id);persist('vendors');renderVendors();renderDashboard();toast('Vendor removed');}
+function renderVendors(){const tb=document.getElementById('v-tbody');if(!tb)return;const em=document.getElementById('v-empty');tb.innerHTML='';em.style.display=state.vendors.length?'none':'block';state.vendors.forEach((v,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td style="color:var(--text-light);font-size:0.75rem">${i+1}</td><td><strong>${esc(v.name)}</strong></td><td><span class="badge brose">${esc(v.cat)}</span></td><td style="font-size:0.78rem">${esc(v.contact)}<br><span style="color:var(--text-light)">${esc(v.phone)}</span></td><td>₹${inr(v.cost)}</td><td style="color:${v.deposit>0?'var(--success)':'var(--text-light)'}">₹${inr(v.deposit)}</td><td><span class="badge ${vStat[v.status]||'bgr'}">${v.status}</span></td><td style="white-space:nowrap"><button class="btn btn-g bsm" onclick="editVendor('${v.id}')">Edit</button> <button class="btn btn-d bsm" onclick="armDel(this,()=>delVendor('${v.id}'))">✕</button></td>`;tb.appendChild(tr);});}
+
+// ==================== BUDGET ====================
+let _budgetTimer=null;
+function saveBudget(){state.budget=parseFloat(document.getElementById('bud-input').value)||0;clearTimeout(_budgetTimer);_budgetTimer=setTimeout(()=>persist('budget'),1000);renderBudget();renderDashboard();}
+function saveExpense(){const id=document.getElementById('e-eid').value,obj={id:id||uid(),cat:document.getElementById('e-cat').value,desc:document.getElementById('e-desc').value,amount:parseFloat(document.getElementById('e-amount').value)||0,paid:document.getElementById('e-paid').value,date:document.getElementById('e-date').value};if(id){const i=state.expenses.findIndex(e=>e.id===id);if(i>-1)state.expenses[i]=obj;}else{state.expenses.push(obj);}persist('expenses');closeM('em');['e-desc','e-amount'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});document.getElementById('e-eid').value='';renderBudget();renderDashboard();toast('✓ Expense saved');}
+function delExpense(id){state.expenses=state.expenses.filter(e=>e.id!==id);persist('expenses');renderBudget();renderDashboard();}
+function addTaxRow(){state.taxRows.push({id:uid(),label:'',type:'pct',value:0});persist('taxRows');renderBudget();}
+function delTaxRow(id){state.taxRows=state.taxRows.filter(r=>r.id!==id);persist('taxRows');renderBudget();}
+function updateTaxRow(id,field,val){const r=state.taxRows.find(x=>x.id===id);if(!r)return;r[field]=field==='value'?(parseFloat(val)||0):val;clearTimeout(_budgetTimer);_budgetTimer=setTimeout(()=>persist('taxRows'),1000);renderBudget();}
+function renderBudget(){const total=state.budget,spent=state.expenses.reduce((s,e)=>s+e.amount,0),rem=total-spent,pct=total?Math.min(Math.round(spent/total*100),100):0;const bi=document.getElementById('bud-input');if(bi&&document.activeElement!==bi)bi.value=total||'';const bt=document.getElementById('b-total');if(bt)bt.textContent='₹'+inr(total);const bs=document.getElementById('b-spent');if(bs)bs.textContent='₹'+inr(spent);const br=document.getElementById('b-rem');if(br){br.textContent='₹'+inr(Math.abs(rem))+(rem<0?' over':'');br.style.color=rem<0?'var(--danger)':'var(--success)';}const bb=document.getElementById('b-bar');if(bb){bb.style.width=pct+'%';bb.style.background=pct>90?'linear-gradient(90deg,var(--danger),#e06060)':'linear-gradient(90deg,var(--rose-mid),var(--rose))';}const bp=document.getElementById('b-pct');if(bp)bp.textContent=pct+'% spent';const bl=document.getElementById('b-tlabel');if(bl)bl.textContent='₹'+inr(total);const tb=document.getElementById('e-tbody');if(!tb)return;const em=document.getElementById('e-empty');tb.innerHTML='';em.style.display=state.expenses.length?'none':'block';state.expenses.forEach(e=>{const tr=document.createElement('tr');tr.innerHTML=`<td><span class="badge brose">${esc(e.cat)}</span></td><td>${esc(e.desc)}</td><td>₹${inr(e.amount)}</td><td><span class="badge ${e.paid==='Yes'?'bg':'ba'}">${e.paid==='Yes'?'Paid':'Outstanding'}</span></td><td style="font-size:0.78rem;color:var(--text-light)">${e.date||'—'}</td><td><button class="btn btn-d bsm" onclick="armDel(this,()=>delExpense('${e.id}'))">✕</button></td>`;tb.appendChild(tr);});const tc=document.getElementById('tax-rows');if(!tc)return;tc.innerHTML=state.taxRows.map(row=>{const taxAmt=row.type==='pct'?spent*(row.value/100):row.value;return`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--border);"><input type="text" value="${esc(row.label)}" placeholder="e.g. GST 18%" style="flex:2;min-width:140px;" oninput="updateTaxRow('${row.id}','label',this.value)"/><select style="width:110px;" onchange="updateTaxRow('${row.id}','type',this.value)"><option value="pct" ${row.type==='pct'?'selected':''}>% of total</option><option value="flat" ${row.type==='flat'?'selected':''}>Fixed (₹)</option></select><input type="number" value="${row.value||''}" style="width:100px;" oninput="updateTaxRow('${row.id}','value',this.value)"/><div style="min-width:90px;font-size:0.85rem;font-weight:500;color:var(--warning);">= ₹${inr(taxAmt)}</div><button class="btn btn-d bsm" onclick="delTaxRow('${row.id}')">✕</button></div>`;}).join('');const totalTax=state.taxRows.reduce((s,r)=>s+(r.type==='pct'?spent*(r.value/100):r.value),0),grand=spent+totalTax,tremain=total-grand;const tsu=document.getElementById('tax-subtotal');if(tsu)tsu.textContent='₹'+inr(spent);const tto=document.getElementById('tax-total');if(tto)tto.textContent='₹'+inr(totalTax);const tgr=document.getElementById('tax-grand');if(tgr)tgr.textContent='₹'+inr(grand);const tre=document.getElementById('tax-remaining');if(tre){tre.textContent='₹'+inr(Math.abs(tremain))+(tremain<0?' over':'');tre.style.color=tremain<0?'var(--danger)':'var(--success)';}}
+
+// ==================== GUESTS ====================
+const GF={group:'All',side:'All',rsvp:'All',invite:'All'};
+const GROUPS=['Friends',"Dad's Immediate Family","Mom's Immediate Family","Dad's Extended Family","Mom's Extended Family","Parents' Friends","Friends Parents","George's Friends",'Misc'];
+const GC={'Friends':'bb',"Dad's Immediate Family":'bg',"Mom's Immediate Family":'bg',"Dad's Extended Family":'ba',"Mom's Extended Family":'brose',"Parents' Friends":'bgr',"Friends Parents":'ba',"George's Friends":'bb','Misc':'bgr'};
+const RB={Yes:'bg',No:'br',Pending:'ba'};
+function toggleSub(){const g=document.getElementById('g-group'),sf=document.getElementById('sub-field');if(g&&sf)sf.style.display=g.value==='Friends'?'block':'none';}
+function setGF(key,val){GF[key]=val;if(key==='group'){document.querySelectorAll('[data-group]').forEach(b=>b.classList.toggle('active',b.dataset.group===val));const adb=document.getElementById('add-div-bar');if(adb)adb.style.display=val==='Friends'?'flex':'none';}if(key==='invite')document.querySelectorAll('[data-invite]').forEach(b=>b.classList.toggle('active',b.dataset.invite===val));renderGuests();}
+function syncFO(){const fids=new Set(state.guests.filter(g=>(g.group||'Friends')==='Friends').map(g=>g.id)),oids=new Set(state.friendsOrder.filter(o=>o.type==='guest').map(o=>o.id));fids.forEach(id=>{if(!oids.has(id))state.friendsOrder.push({type:'guest',id});});state.friendsOrder=state.friendsOrder.filter(o=>o.type==='divider'||fids.has(o.id));}
+function addDivider(){const inp=document.getElementById('div-input');if(!inp)return;const label=inp.value.trim();if(!label)return;state.friendsOrder.push({type:'divider',id:uid(),label:label.toUpperCase()});inp.value='';persist('friendsOrder');renderGuests();}
+function renameDivider(id){const item=state.friendsOrder.find(o=>o.id===id);if(!item)return;const el=document.getElementById('dlbl-'+id);if(!el)return;const inp=document.createElement('input');inp.type='text';inp.value=item.label;inp.style='background:transparent;border:none;border-bottom:1px dashed rgba(245,232,236,0.6);color:#f5e8ec;font-size:0.76rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:2px 4px;width:200px;outline:none;';inp.onblur=inp.onkeydown=function(e){if(e.type==='keydown'&&e.key!=='Enter')return;item.label=inp.value.trim().toUpperCase()||item.label;persist('friendsOrder');renderGuests();};el.innerHTML='';el.appendChild(inp);inp.focus();inp.select();}
+function delDivider(id){state.friendsOrder=state.friendsOrder.filter(o=>o.id!==id);persist('friendsOrder');renderGuests();}
+function moveItem(id,dir){const idx=state.friendsOrder.findIndex(o=>o.id===id);if(idx<0)return;const ni=idx+dir;if(ni<0||ni>=state.friendsOrder.length)return;[state.friendsOrder[idx],state.friendsOrder[ni]]=[state.friendsOrder[ni],state.friendsOrder[idx]];persist('friendsOrder');renderGuests();}
+function saveGuest(){
+  const id=document.getElementById('g-eid').value;
+  const grp=document.getElementById('g-group').value;
+  const obj={
+    id:id||uid(),
+    name:document.getElementById('g-name').value,
+    inviteType:document.getElementById('g-itype').value,
+    group:grp,
+    subgroup:grp==='Friends'?(document.getElementById('g-sub').value.trim()):'',
+    side:document.getElementById('g-side').value,
+    invite:document.getElementById('g-invite').value,
+    rsvp:document.getElementById('g-rsvp').value,
+    plus:document.getElementById('g-plus').value,
+    diet:document.getElementById('g-diet').value,
+    table:document.getElementById('g-table').value,
+    notes:document.getElementById('g-notes').value
+  };
+  if(!obj.name){alert('Please enter a name');return;}
+  if(id){const i=state.guests.findIndex(g=>g.id===id);if(i>-1)state.guests[i]=obj;}
+  else{state.guests.push(obj);}
+  if(!id&&grp==='Friends')state.friendsOrder.push({type:'guest',id:obj.id});
+  // Save the individual guest row + update main guests array + friendsOrder if needed
+  setSyncDot('saving');
+  const saves=[
+    dbWrite('guest_'+obj.id, obj),
+    dbWrite('guests', state.guests)
+  ];
+  if(!id&&grp==='Friends') saves.push(dbWrite('friendsOrder',state.friendsOrder));
+  Promise.all(saves).then(results=>{
+    if(results.every(r=>r)) setSyncDot('saved');
+    else setSyncDot('error');
+  });
+  closeM('gm');clearGF();renderGuests();renderDashboard();toast('✓ Guest saved');
+}
+function clearGF(){['g-name','g-diet','g-notes','g-sub'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});const e=document.getElementById('g-eid');if(e)e.value='';const t=document.getElementById('gm-t');if(t)t.textContent='Add Guest';const gi=document.getElementById('g-itype');if(gi)gi.value='Reception Only';const gr=document.getElementById('g-rsvp');if(gr)gr.value='Pending';const inv=document.getElementById('g-invite');if(inv)inv.value='No';const pl=document.getElementById('g-plus');if(pl)pl.value='No';const tbl=document.getElementById('g-table');if(tbl)tbl.value='';toggleSub();}
+function editGuest(id){const g=state.guests.find(x=>x.id===id);if(!g)return;document.getElementById('g-eid').value=g.id;document.getElementById('g-name').value=g.name;document.getElementById('g-itype').value=g.inviteType||'Reception Only';document.getElementById('g-group').value=g.group||'Friends';document.getElementById('g-sub').value=g.subgroup||'';document.getElementById('g-side').value=g.side;document.getElementById('g-invite').value=g.invite;document.getElementById('g-rsvp').value=g.rsvp;document.getElementById('g-plus').value=g.plus;document.getElementById('g-diet').value=g.diet||'';document.getElementById('g-table').value=g.table||'';document.getElementById('g-notes').value=g.notes||'';document.getElementById('gm-t').textContent='Edit Guest';toggleSub();openM('gm');}
+function delGuest(id){
+  state.guests=state.guests.filter(g=>g.id!==id);
+  state.friendsOrder=state.friendsOrder.filter(o=>o.id!==id);
+  setSyncDot('saving');
+  // Update both the main guests array AND delete the individual guest row
+  Promise.all([
+    dbWrite('guests', state.guests),
+    dbDelete('guest_'+id),
+    dbWrite('friendsOrder', state.friendsOrder)
+  ]).then(()=>setSyncDot('saved'));
+  renderGuests();renderDashboard();renderSeating();toast('Guest removed');
+}
+function renderGuests(){const all=state.guests;document.getElementById('g-tot').textContent=all.length;document.getElementById('g-yes').textContent=all.filter(g=>g.rsvp==='Yes').length;document.getElementById('g-no').textContent=all.filter(g=>g.rsvp==='No').length;document.getElementById('g-pend').textContent=all.filter(g=>g.rsvp==='Pending').length;const gnu=document.getElementById('g-nuptials');if(gnu)gnu.textContent=all.filter(g=>g.inviteType==='Nuptials + Reception').length;const gre=document.getElementById('g-reception');if(gre)gre.textContent=all.filter(g=>g.inviteType!=='Nuptials + Reception').length;const search=(document.getElementById('g-search')||{value:''}).value.trim().toLowerCase();const filtered=all.filter(g=>{if(GF.invite!=='All'&&(g.inviteType||'Reception Only')!==GF.invite)return false;if(GF.group!=='All'&&(g.group||'Friends')!==GF.group)return false;if(GF.side!=='All'&&g.side!==GF.side)return false;if(GF.rsvp!=='All'&&g.rsvp!==GF.rsvp)return false;if(search&&!g.name.toLowerCase().includes(search))return false;return true;});const fl=document.getElementById('g-flabel');if(fl)fl.textContent=`Showing ${filtered.length} of ${all.length} guests`;const adb=document.getElementById('add-div-bar');if(adb)adb.style.display=GF.group==='Friends'?'flex':'none';const tbody=document.getElementById('g-tbody');if(!tbody)return;const empty=document.getElementById('g-empty');tbody.innerHTML='';empty.style.display=filtered.length?'none':'block';const filtIds=new Set(filtered.map(g=>g.id)),present=GROUPS.filter(grp=>filtered.some(g=>(g.group||'Friends')===grp));let serial=0;present.forEach(grp=>{const grpGuests=filtered.filter(g=>(g.group||'Friends')===grp);if(!grpGuests.length)return;const htr=document.createElement('tr');htr.className='subheading-row';htr.innerHTML=`<td colspan="11" style="padding-top:14px!important"><span style="font-size:1rem">${grp}</span> <span style="font-size:0.7rem;font-style:normal;color:var(--text-light);font-family:'DM Sans',sans-serif">${grpGuests.length} guest${grpGuests.length!==1?'s':''}</span></td>`;tbody.appendChild(htr);if(grp==='Friends'){syncFO();const noFilter=GF.invite==='All'&&GF.side==='All'&&GF.rsvp==='All'&&!search;state.friendsOrder.forEach(item=>{if(item.type==='divider'){if(!noFilter)return;const dr=document.createElement('tr');dr.className='divider-row';dr.innerHTML=`<td colspan="11"><div style="display:flex;align-items:center;gap:8px"><span id="dlbl-${item.id}" style="flex:1;letter-spacing:0.1em">${esc(item.label)}</span><button class="dmb" onclick="moveItem('${item.id}',-1)">▲</button><button class="dmb" onclick="moveItem('${item.id}',1)">▼</button><button class="dmb" onclick="renameDivider('${item.id}')">✎</button><button class="ddb" onclick="delDivider('${item.id}')">✕</button></div></td>`;tbody.appendChild(dr);}else{if(!filtIds.has(item.id))return;const g=state.guests.find(x=>x.id===item.id);if(!g)return;serial++;appendGRow(tbody,g,serial,true);}});grpGuests.forEach(g=>{if(!state.friendsOrder.find(o=>o.id===g.id)){serial++;appendGRow(tbody,g,serial,true);}});}else{grpGuests.forEach(g=>{serial++;appendGRow(tbody,g,serial,false);});}});const sel=document.getElementById('g-table');if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">Unassigned</option>';state.tables.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name;if(t.id===cur)o.selected=true;sel.appendChild(o);});}
+function appendGRow(tbody,g,serial,isFriend){const tr=document.createElement('tr'),grp=g.group||'Friends',inv=g.inviteType==='Nuptials + Reception'?'<span class="badge brose" style="font-size:0.65rem;white-space:nowrap">💍 Full day</span>':'<span class="badge ba" style="font-size:0.65rem;white-space:nowrap">🥂 Reception</span>',mv=isFriend?`<button class="btn btn-g bsm" onclick="moveItem('${g.id}',-1)" style="padding:3px 7px;font-size:0.7rem">▲</button><button class="btn btn-g bsm" onclick="moveItem('${g.id}',1)" style="padding:3px 7px;font-size:0.7rem">▼</button>`:'';tr.innerHTML=`<td style="color:var(--text-light);font-size:0.76rem;font-weight:500">${serial}</td><td><strong>${esc(g.name)}</strong></td><td><span class="badge ${GC[grp]||'bgr'}" style="font-size:0.65rem;white-space:nowrap">${esc(grp)}</span></td><td style="font-size:0.76rem;color:var(--text-mid)">${esc(g.side)}</td><td>${inv}</td><td><span class="badge ${g.invite==='Yes'?'bg':'bgr'}" style="font-size:0.65rem">${g.invite==='Yes'?'Sent':'No'}</span></td><td><span class="badge ${RB[g.rsvp]||'bgr'}">${g.rsvp}</span></td><td style="text-align:center">${g.plus==='Yes'?'✓':g.plus==='Maybe'?'?':'—'}</td><td style="font-size:0.75rem;color:var(--text-light)">${esc(g.diet)||'—'}</td><td style="font-size:0.75rem;color:var(--text-light);max-width:90px">${esc(g.notes||'').substring(0,25)}${(g.notes||'').length>25?'…':''}</td><td style="white-space:nowrap">${mv}<button class="btn btn-g bsm" onclick="editGuest('${g.id}')">Edit</button> <button class="btn btn-d bsm" onclick="armDel(this,()=>delGuest('${g.id}'))">✕</button></td>`;tbody.appendChild(tr);}
+
+// ==================== SEATING ====================
+function saveTable(){const id=document.getElementById('t-eid').value,obj={id:id||uid(),name:document.getElementById('t-name').value,seats:parseInt(document.getElementById('t-seats').value)||10};if(!obj.name){alert('Enter a table name');return;}if(id){const i=state.tables.findIndex(t=>t.id===id);if(i>-1)state.tables[i]=obj;}else{state.tables.push(obj);}persist('tables');closeM('tm');['t-name','t-seats'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});document.getElementById('t-eid').value='';renderSeating();renderGuests();toast('✓ Table saved');}
+function delTable(id){state.tables=state.tables.filter(t=>t.id!==id);state.guests.forEach(g=>{if(g.table===id)g.table='';});persist('tables');persist('guests');renderSeating();renderGuests();}
+function renderSeating(){const totalSeats=state.tables.reduce((s,t)=>s+t.seats,0),assigned=state.guests.filter(g=>g.table).length,unassigned=state.guests.filter(g=>!g.table&&g.rsvp!=='No').length;const st=document.getElementById('st-tables');if(st)st.textContent=state.tables.length;const ss=document.getElementById('st-seats');if(ss)ss.textContent=totalSeats;const sa=document.getElementById('st-assigned');if(sa)sa.textContent=assigned;const su=document.getElementById('st-unassigned');if(su)su.textContent=unassigned;const grid=document.getElementById('tables-grid');if(!grid)return;const empty=document.getElementById('st-empty');grid.innerHTML='';empty.style.display=state.tables.length?'none':'block';state.tables.forEach(t=>{const guests=state.guests.filter(g=>g.table===t.id),pct=Math.min(Math.round(guests.length/t.seats*100),100),div=document.createElement('div');div.className='card';div.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-weight:500;font-size:0.9rem">${esc(t.name)}</span><button class="btn btn-d bsm" onclick="armDel(this,()=>delTable('${t.id}'))">✕</button></div><div style="font-size:0.78rem;color:var(--text-light);margin-bottom:6px">${guests.length} / ${t.seats} seats</div><div class="pw" style="margin-bottom:8px"><div class="pb" style="width:${pct}%"></div></div>${guests.map(g=>`<div style="font-size:0.79rem;padding:3px 0;border-bottom:1px solid var(--border)">${esc(g.name)}${g.plus==='Yes'?' <span style="color:var(--text-light)">+1</span>':''}</div>`).join('')}${guests.length===0?'<div style="font-size:0.76rem;color:var(--text-light);font-style:italic">No guests assigned</div>':''}`;grid.appendChild(div);});}
+
+// ==================== NOTES ====================
+let _notesTimer=null;
+function saveNotes(){state.notes={general:(document.getElementById('n-gen')||{value:''}).value,vows:(document.getElementById('n-vows')||{value:''}).value,music:(document.getElementById('n-music')||{value:''}).value,style:(document.getElementById('n-style')||{value:''}).value};clearTimeout(_notesTimer);_notesTimer=setTimeout(()=>persist('notes'),1500);}
+function renderNotes(){const n=state.notes||{};[['n-gen','general'],['n-vows','vows'],['n-music','music'],['n-style','style']].forEach(([id,k])=>{const e=document.getElementById(id);if(e)e.value=n[k]||'';});}
+
+// ==================== DASHBOARD ====================
+function renderDashboard(){const done=state.checklist.filter(c=>c.done).length,total=state.checklist.length,pct=total?Math.round(done/total*100):0;const st=document.getElementById('s-tasks');if(st)st.textContent=done+'/'+total;const tp=document.getElementById('s-tpb');if(tp)tp.style.width=pct+'%';const spent=state.expenses.reduce((s,e)=>s+e.amount,0),rem=state.budget-spent;const sb=document.getElementById('s-budget');if(sb){sb.textContent='₹'+inr(Math.abs(rem))+(rem<0?' over':'');sb.style.color=rem<0?'var(--danger)':'var(--rose)';}const yes=state.guests.filter(g=>g.rsvp==='Yes').length;const sg=document.getElementById('s-guests');if(sg)sg.textContent=yes;const sgs=document.getElementById('s-gsub');if(sgs)sgs.textContent=state.guests.length+' total invited';const dt=document.getElementById('d-tasks');if(dt){const up=state.checklist.filter(c=>!c.done).slice(0,6);dt.innerHTML=up.length?up.map(c=>`<div class="ci" style="cursor:pointer" onclick="toggleTask('${c.id}')"><input type="checkbox" style="pointer-events:none"/><div style="flex:1"><div class="ct">${esc(c.text)}</div><div class="cm">${esc(c.cat)}</div></div></div>`).join(''):'<div class="empty" style="padding:1rem">🎉 All tasks done!</div>';}const db=document.getElementById('d-budget');if(db){const cats={};state.expenses.forEach(e=>{cats[e.cat]=(cats[e.cat]||0)+e.amount;});const mx=Math.max(...Object.values(cats),1);db.innerHTML=Object.keys(cats).length?Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([c,a])=>`<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:2px"><span>${c}</span><span>₹${inr(a)}</span></div><div class="pw" style="height:4px"><div class="pb" style="width:${Math.round(a/mx*100)}%"></div></div></div>`).join(''):'<div class="empty" style="padding:1rem;font-size:0.78rem">No expenses yet.</div>';}const dv=document.getElementById('d-vendors');if(dv)dv.innerHTML=state.vendors.length?state.vendors.slice(0,6).map(v=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:0.84rem;font-weight:500">${esc(v.name)}</div><div style="font-size:0.72rem;color:var(--text-light)">${esc(v.cat)}</div></div><span class="badge ${vStat[v.status]||'bgr'}">${v.status}</span></div>`).join(''):'<div class="empty" style="padding:1rem;font-size:0.78rem">No vendors yet.</div>';const dg=document.getElementById('d-guests');if(dg){const y=state.guests.filter(g=>g.rsvp==='Yes').length,n=state.guests.filter(g=>g.rsvp==='No').length,p=state.guests.filter(g=>g.rsvp==='Pending').length,t=state.guests.length||1;dg.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;text-align:center;padding:8px;background:var(--cream);border-radius:8px"><div style="font-size:1.1rem;color:var(--sage);font-weight:500">${y}</div><div style="font-size:0.68rem;color:var(--text-light)">Attending</div></div><div style="flex:1;text-align:center;padding:8px;background:var(--cream);border-radius:8px"><div style="font-size:1.1rem;color:var(--danger);font-weight:500">${n}</div><div style="font-size:0.68rem;color:var(--text-light)">Declined</div></div><div style="flex:1;text-align:center;padding:8px;background:var(--cream);border-radius:8px"><div style="font-size:1.1rem;color:var(--gold);font-weight:500">${p}</div><div style="font-size:0.68rem;color:var(--text-light)">Pending</div></div></div><div class="pw"><div class="pb" style="width:${Math.round(y/t*100)}%;background:linear-gradient(90deg,var(--sage),var(--success))"></div></div><div style="font-size:0.72rem;color:var(--text-light);margin-top:3px">${Math.round(y/t*100)}% confirmed of ${t} invited</div>`;}}
+
+// ==================== RENDER ALL ====================
+function renderAll(){updateCountdown();renderDashboard();renderChecklist();renderVendors();renderBudget();renderGuests();renderSeating();renderNotes();}
+
+// ==================== EXPORT / IMPORT ====================
+function exportData(){const data={checklist:state.checklist,vendors:state.vendors,expenses:state.expenses,guests:state.guests,tables:state.tables,budget:state.budget,notes:state.notes,taxRows:state.taxRows,friendsOrder:state.friendsOrder,exportedAt:new Date().toISOString()};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='wedding-planner-backup.json';a.click();URL.revokeObjectURL(url);toast('✓ Backup downloaded');}
+async function importData(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async(e)=>{try{const data=JSON.parse(e.target.result);const keys=['checklist','vendors','expenses','guests','tables','budget','notes','taxRows','friendsOrder'];for(const k of keys){if(data[k]!==undefined)state[k]=data[k];}await dbSaveAll();renderAll();toast(`✓ Imported — ${state.guests.length} guests, ${state.vendors.length} vendors loaded`);}catch(err){alert('Could not read file. Make sure it is a valid wedding planner export.');}input.value='';};reader.readAsText(file);}
+
+// ==================== INIT ====================
+async function init(){
+  document.getElementById('loading-msg').textContent='Loading your wedding data…';
+  updateCountdown();
+  setInterval(updateCountdown,60000);
+  if(window.innerWidth<=700){const mn=document.getElementById('mob-nav');if(mn)mn.style.display='flex';}
+  await dbLoad();
+  document.getElementById('loading').classList.add('hidden');
+  renderAll();
+  setSyncDot('saved');
+}
+init();
+
+function setSyncDot(s){const el=document.getElementById('sync-dot');if(!el)return;const map={saving:'↑ saving…',saved:'✓ saved',error:'⚠ error'};const col={saving:'#c8a97a',saved:'#4a9063',error:'#c94040'};el.textContent=map[s]||'';el.style.color=col[s]||'#a08880';}
+</script>
+</body>
+</html>
