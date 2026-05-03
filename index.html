@@ -604,9 +604,8 @@ function delGuest(id){
   state.guests=state.guests.filter(g=>g.id!==id);
   state.friendsOrder=state.friendsOrder.filter(o=>o.id!==id);
   setSyncDot('saving');
-  // Update both the main guests array AND delete the individual guest row
+  // Delete the individual guest row + update friendsOrder only (no bulk guests write)
   Promise.all([
-    dbWrite('guests', state.guests),
     dbDelete('guest_'+id),
     dbWrite('friendsOrder', state.friendsOrder)
   ]).then(()=>setSyncDot('saved'));
