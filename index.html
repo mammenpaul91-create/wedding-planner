@@ -365,12 +365,12 @@ const GS_URL = 'https://script.google.com/macros/s/AKfycbyAazkR9Gl94JC8ZdRu2S1tO
 
 async function dbRead() {
   try {
-    const r = await fetch(GS_URL, {method:'GET', redirect:'follow'});
+    const r = await fetch(GS_URL + '?action=load', {method:'GET', redirect:'follow'});
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const json = await r.json();
-    if (!json.ok) throw new Error(json.error || 'Unknown error');
+    if (!json.success) throw new Error(json.error || 'Unknown error');
     // Convert {key: value} object to array of {key, value} rows
-    return Object.entries(json.data).map(([key, value]) => ({key, value: JSON.stringify(value)}));
+    return Object.entries(json.data).map(([key, value]) => ({key, value: String(value)}));
   } catch(e) {
     console.error('dbRead error:', e);
     return null;
@@ -384,11 +384,11 @@ async function dbWrite(key, val, retries=3) {
         method: 'POST',
         redirect: 'follow',
         headers: {'Content-Type': 'text/plain'},
-        body: JSON.stringify({key, value: val})
+        body: JSON.stringify({action:'save', key, value: val})
       });
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const json = await r.json();
-      if (!json.ok) throw new Error(json.error || 'Unknown error');
+      if (!json.success) throw new Error(json.error || 'Unknown error');
       return true;
     } catch(e) {
       console.warn(`dbWrite attempt ${attempt} failed:`, e.message);
@@ -398,6 +398,27 @@ async function dbWrite(key, val, retries=3) {
         return false;
       }
       await new Promise(r=>setTimeout(r, 1000*attempt)); // wait before retry
+    }
+  }
+}
+
+async function dbDelete(key, retries=3) {
+  for(let attempt=1; attempt<=retries; attempt++){
+    try {
+      const r = await fetch(GS_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: {'Content-Type': 'text/plain'},
+        body: JSON.stringify({action:'delete', key})
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const json = await r.json();
+      if (!json.success) throw new Error(json.error || 'Unknown error');
+      return true;
+    } catch(e) {
+      console.warn(`dbDelete attempt ${attempt} failed:`, e.message);
+      if(attempt===retries){ return false; }
+      await new Promise(r=>setTimeout(r, 1000*attempt));
     }
   }
 }
@@ -593,7 +614,7 @@ function delGuest(id){
   // Update both the main guests array AND delete the individual guest row
   Promise.all([
     dbWrite('guests', state.guests),
-    dbWrite('guest_'+id, null),
+    dbDelete('guest_'+id),
     dbWrite('friendsOrder', state.friendsOrder)
   ]).then(()=>setSyncDot('saved'));
   renderGuests();renderDashboard();renderSeating();toast('Guest removed');
