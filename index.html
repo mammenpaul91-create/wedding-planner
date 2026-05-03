@@ -584,7 +584,7 @@ function saveGuest(){
   if(!obj.name){alert('Please enter a name');return;}
   if(id){const i=state.guests.findIndex(g=>g.id===id);if(i>-1)state.guests[i]=obj;}
   else{state.guests.push(obj);}
-  if(!id&&grp==='Friends')state.friendsOrder.push({type:'guest',id:obj.id});
+  if(!Array.isArray(state.friendsOrder))state.friendsOrder=[];  if(!id&&grp==='Friends')state.friendsOrder.push({type:'guest',id:obj.id});
   // Save only the individual guest row (no bulk guests write - too large)
   setSyncDot('saving');
   dbWrite('guest_'+obj.id, obj).then(ok=>{
