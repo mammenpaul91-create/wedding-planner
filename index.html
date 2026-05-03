@@ -585,15 +585,10 @@ function saveGuest(){
   if(id){const i=state.guests.findIndex(g=>g.id===id);if(i>-1)state.guests[i]=obj;}
   else{state.guests.push(obj);}
   if(!id&&grp==='Friends')state.friendsOrder.push({type:'guest',id:obj.id});
-  // Save the individual guest row + update main guests array + friendsOrder if needed
+  // Save only the individual guest row (no bulk guests write - too large)
   setSyncDot('saving');
-  const saves=[
-    dbWrite('guest_'+obj.id, obj),
-    dbWrite('guests', state.guests)
-  ];
-  if(!id&&grp==='Friends') saves.push(dbWrite('friendsOrder',state.friendsOrder));
-  Promise.all(saves).then(results=>{
-    if(results.every(r=>r)) setSyncDot('saved');
+  dbWrite('guest_'+obj.id, obj).then(ok=>{
+    if(ok) setSyncDot('saved');
     else setSyncDot('error');
   });
   closeM('gm');clearGF();renderGuests();renderDashboard();toast('✓ Guest saved');
