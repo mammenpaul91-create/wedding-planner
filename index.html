@@ -447,34 +447,33 @@ async function dbLoad() {
   // First pass — load all regular keys
   const guestMap = {};
   rows.forEach(row => {
+    const val = row.value;
     if (row.key.startsWith('guest_')) {
       try {
-        const g = JSON.parse(row.value);
+        const g = typeof val === 'string' ? JSON.parse(val) : val;
         if (g && g.id) guestMap[g.id] = g;
       } catch{}
     } else {
-      try { state[row.key] = JSON.parse(row.value); } catch{}
+      try {
+        state[row.key] = typeof val === 'string' ? JSON.parse(val) : val;
+      } catch{ state[row.key] = val; }
     }
   });
 
-  // If we have individual guest_ rows, merge them with the existing guests array
-  if (Object.keys(guestMap).length > 0) {
-    // Start with guests from the old guests row
-    const existingGuests = state.guests || [];
-    // Build a map of existing guests
-    const existingMap = {};
-    existingGuests.forEach(g => { if(g && g.id) existingMap[g.id] = g; });
-    // Merge: individual guest_ rows override old guests row
-    Object.assign(existingMap, guestMap);
-    // Reconstruct ordered array
-    const fo = state.friendsOrder || [];
-    const orderedIds = fo.filter(o => o.type === 'guest').map(o => o.id);
-    const allIds = Object.keys(existingMap);
-    const unordered = allIds.filter(id => !orderedIds.includes(id));
-    state.guests = [...orderedIds, ...unordered]
-      .filter(id => existingMap[id])
-      .map(id => existingMap[id]);
-  }
+  // Always merge: start with guests array from sheet, then overlay individual guest_ rows
+  const existingGuests = Array.isArray(state.guests) ? state.guests : [];
+  const existingMap = {};
+  existingGuests.forEach(g => { if(g && g.id) existingMap[g.id] = g; });
+  // individual guest_ rows override (they have latest edits)
+  Object.assign(existingMap, guestMap);
+  // Reconstruct ordered array using friendsOrder + any unordered guests
+  const fo = Array.isArray(state.friendsOrder) ? state.friendsOrder : [];
+  const orderedIds = fo.filter(o => o.type === 'guest').map(o => o.id);
+  const allIds = Object.keys(existingMap);
+  const unordered = allIds.filter(id => !orderedIds.includes(id));
+  state.guests = [...orderedIds, ...unordered]
+    .filter(id => existingMap[id])
+    .map(id => existingMap[id]);
 }
 
 async function dbInit() {
