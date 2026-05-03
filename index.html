@@ -587,7 +587,7 @@ function saveGuest(){
   if(!Array.isArray(state.friendsOrder))state.friendsOrder=[];  if(!id&&grp==='Friends')state.friendsOrder.push({type:'guest',id:obj.id});
   // Save only the individual guest row (no bulk guests write - too large)
   setSyncDot('saving');
-  dbWrite('guest_'+obj.id, obj).then(ok=>{
+  dbWrite('guest_'+obj.id, JSON.stringify(obj)).then(ok=>{
     if(ok) setSyncDot('saved');
     else setSyncDot('error');
   });
